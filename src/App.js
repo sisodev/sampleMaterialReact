@@ -1,26 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component, Fragment }  from 'react';
 import './App.css';
+import {Header, Footer} from './components/Layout';
+import Excercise from './components/Excersice';
+import {muscles, exercises} from './store.js';
+// import Speedometer  from './components/Speedometer';
+//import MenuAction from './components/MenuAction';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default class extends Component {
+  state = {
+    exercises,
+    category: '',
+    exercise: null 
+  }
+
+
+
+  getExcercisesByMuscle(){
+    return Object.entries(this.state.exercises.reduce((exercises, exercise) =>{
+      const {muscles} = exercise
+      exercises[muscles] = exercises[muscles] ? [...exercises[muscles], exercise] : [exercise]
+      return exercises
+    },{}))
+  }
+
+  handleCategorySelected = category => {
+    this.setState({
+      category
+    })
+  }
+
+  handleExerciseSelected = (title) => {
+    console.log(exercises)
+    this.setState(({exercises}) => ({
+      exercise: exercises.find(ex => ex.title === title)
+    }))
+  }
+
+
+  render() {
+    const exercises = this.getExcercisesByMuscle()
+    const {category, exercise} = this.state;
+    
+    return(
+      <Fragment>
+        <Header/>
+          <Excercise exercise={!exercise? {title: 'welcome',description: 'Please select an Exercise from the left'}: exercise} exercises={exercises} category={category} onSelect={this.handleExerciseSelected}/>
+        <Footer muscles={muscles} category={category} onSelect={this.handleCategorySelected}/>
+      </Fragment>
+
+    )
+  }
 }
-
-export default App;
